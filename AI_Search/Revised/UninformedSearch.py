@@ -7,6 +7,10 @@
 from queue import heappop, heappush
 from math import inf
 from collections import deque
+import pandas as pd
+import networkx as nx
+import matplotlib.pyplot as plt
+import warnings
 
 
 # In[2]:
@@ -100,43 +104,30 @@ class Graph:
 # In[3]:
 
 
-graph = Graph(directed=True)
-graph.add_edge('Arad', 'Zerind', 75)
-graph.add_edge('Arad', 'Timisoara', 118)
-graph.add_edge('Arad', 'Sibiu', 140)
-graph.add_edge('Zerind', 'Oradea', 71)
-graph.add_edge('Zerind', 'Arad', 75)
-graph.add_edge('Timisoara', 'Arad', 118)
-graph.add_edge('Timisoara', 'Lugoj', 111)
-graph.add_edge('Sibiu', 'Arad', 140)
-graph.add_edge('Sibiu', 'Oradea', 151)
-graph.add_edge('Sibiu', 'Fagaras', 99)
-graph.add_edge('Sibiu', 'RimnicuVilcea', 80)
-graph.add_edge('Oradea', 'Zerind', 71)
-graph.add_edge('Oradea', 'Sibiu', 151)
-graph.add_edge('Lugoj', 'Timisoara', 111)
-graph.add_edge('Lugoj', 'Mehadia', 70)
-graph.add_edge('RimnicuVilcea', 'Sibiu', 80)
-graph.add_edge('RimnicuVilcea', 'Pitesti', 97)
-graph.add_edge('RimnicuVilcea', 'Craiova', 146)
-graph.add_edge('Mehadia', 'Lugoj', 70)
-graph.add_edge('Mehadia','Dobreta', 75)
-graph.add_edge('Craiova', 'Dobreta', 120)
-graph.add_edge('Craiova', 'RimnicuVilcea', 146)
-graph.add_edge('Craiova', 'Pitesti', 138)
-graph.add_edge('Pitesti', 'RimnicuVilcea', 97)
-graph.add_edge('Pitesti', 'Craiova', 138)
-graph.add_edge('Pitesti', 'Bucharest', 101)
-graph.add_edge('Fagaras', 'Sibiu', 99)
-graph.add_edge('Fagaras', 'Bucharest', 211)
-graph.add_edge('Dobreta', 'Mehadia', 75)
-graph.add_edge('Dobreta', 'Craiova', 120)
-graph.add_edge('Bucharest', 'Fagaras', 211)
-graph.add_edge('Bucharest', 'Pitesti', 101)
-graph.add_edge('Bucharest', 'Giurgiu', 90)
-graph.add_edge('Giurgiu', 'Bucharest',9)
+warnings.filterwarnings('ignore')
 
-print(graph)
+df_nodes = pd.read_csv('D:/Python/AI_Search/romania_nodes.csv')
+df_edges = pd.read_csv('D:/Python/AI_Search/romania_edges.csv')
+
+G = nx.Graph()
+graph = Graph(directed=True)
+for index, row in df_nodes.iterrows():
+    G.add_node(row['nodes'])
+    
+for index, row in df_edges.iterrows():
+    G.add_weighted_edges_from([(row['source'], row['target'], row['weight'])])
+    graph.add_edge(row['source'], row['target'], row['weight'])
+
+options = {
+    'edge_color': '#FFDEA2',
+    'width': 1,
+    'with_labels': True,
+    'font_weight': 'regular',
+}    
+
+nx.draw(G, **options)
+ax = plt.gca()
+plt.show()
 
 
 # In[4]:
@@ -152,4 +143,10 @@ if (dlm_path): print('Path:', end=' '); Graph.print_path(dlm_path, goal); print(
 print('Uniform Cost Search'); print('-------------------------'); 
 ucs_path, cost = graph.uniform_cost_search(start, goal)
 if (ucs_path): print('Path:', end=' '); Graph.print_path(ucs_path, goal); print('\nCost:', cost)
+
+
+# In[ ]:
+
+
+
 
