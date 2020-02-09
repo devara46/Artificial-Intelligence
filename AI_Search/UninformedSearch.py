@@ -20,6 +20,34 @@ import warnings
 # In[2]:
 
 
+def hierarchy_pos(G, root, width=1., vert_gap = 0.2, vert_loc = 0, xcenter = 0.5 ):
+    def h_recursive(G, root, width=1., vert_gap = 0.2, vert_loc = 0, xcenter = 0.5, 
+                  pos = None, parent = None, parsed = [] ):
+        if(root not in parsed):
+            parsed.append(root)
+            if pos == None:
+                pos = {root:(xcenter,vert_loc)}
+            else:
+                pos[root] = (xcenter, vert_loc)
+            children = list(G.neighbors(root))
+            if not isinstance(G, nx.DiGraph) and parent is not None:
+                children.remove(parent)
+            if len(children)!=0:
+                dx = width/len(children) 
+                nextx = xcenter - width/2 - dx/2
+                for child in children:
+                    nextx += dx
+                    pos = h_recursive(G,child, width = dx, vert_gap = vert_gap, 
+                                        vert_loc = vert_loc-vert_gap, xcenter=nextx, pos=pos, 
+                                        parent = root, parsed = parsed)
+        return pos
+
+    return h_recur(G, root, width=1., vert_gap = 0.2, vert_loc = 0, xcenter = 0.5)
+
+
+# In[3]:
+
+
 class Graph:
     def __init__(self, directed=True):
         self.edges = {}
@@ -42,6 +70,7 @@ class Graph:
 
     def breadth_first_search(self, start, goal):
         # Initial state
+        G1 = nx.DiGraph()
         found, fringe, visited, came_from = False, deque([start]), set([start]), {start: None}
         # Cosmetic
         print('{:15s} | {}'.format('Expand Node', 'Fringe'))
@@ -57,14 +86,20 @@ class Graph:
                     visited.add(node)
                     fringe.appendleft(node)
                     came_from[node] = current
+                    G1.add_node(current)
+                    G1.add_edge(current, node)
             print(', '.join(fringe))
         # Result
+        pos = hierarchy_pos(G1,start)    
+        nx.draw(G1, pos=pos, with_labels=True)
+        plt.show()
         if found: print(); return came_from
         else: print('No path from {} to {}'.format(start, goal))
     
     def depth_limited_search(self, start, goal, limit=-1):
         print('Depth limit =', limit)
         # Initial State
+        G1 = nx.DiGraph()
         found, fringe, visited, came_from = False, deque([(0, start)]), set([start]), {start: None}
         # Cosmetic
         print('{:15s} | {}'.format('Expand Node', 'Fringe'))
@@ -81,13 +116,19 @@ class Graph:
                         visited.add(node)
                         fringe.append((depth + 1, node))
                         came_from[node] = current
+                        G1.add_node(current)
+                        G1.add_edge(current, node)
             print(', '.join([n for _, n in fringe]))
         # Result
+        pos = hierarchy_pos(G1,start)    
+        nx.draw(G1, pos=pos, with_labels=True)
+        plt.show()
         if found: print(); return came_from
         else: print('No path from {} to {}'.format(start, goal))
 
     def uniform_cost_search(self, start, goal):
         # Initial State
+        G1 = nx.DiGraph()
         found, fringe, visited, came_from, cost_so_far = False, [(0, start)], set([start]), {start: None}, {start: 0}
         # Cosmetic
         print('{:15s} | {}'.format('Expand Node', 'Fringe'))
@@ -105,8 +146,13 @@ class Graph:
                     came_from[node] = current
                     cost_so_far[node] = new_cost
                     heappush(fringe, (new_cost, node))
+                    G1.add_node(current)
+                    G1.add_edge(current, node)
             print(', '.join([str(n) for n in fringe]))
         # Result
+        pos = hierarchy_pos(G1, start)    
+        nx.draw(G1, pos=pos, with_labels=True)
+        plt.show()
         if found: print(); return came_from, cost_so_far[goal]
         else: print('No path from {} to {}'.format(start, goal)); return None, inf
 
@@ -124,15 +170,15 @@ class Graph:
         return str(self.edges)
 
 
-# In[3]:
+# In[4]:
 
 
 # Stop showing warning
 warnings.filterwarnings('ignore')
 
 # Load csv
-df_nodes = pd.read_csv('.../Dataset/romania_nodes.csv')
-df_edges = pd.read_csv('.../Dataset/romania_edges.csv')
+df_nodes = pd.read_csv('D:/Dataset/romania_nodes.csv')
+df_edges = pd.read_csv('D:/Dataset/romania_edges.csv')
 
 G = nx.Graph()
 graph = Graph(directed=True)
@@ -160,7 +206,7 @@ ax = plt.gca()
 plt.show()
 
 
-# In[4]:
+# In[5]:
 
 
 # Define Starting node, Goal node, and Depth limit for dlm
