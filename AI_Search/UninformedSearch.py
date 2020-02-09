@@ -206,21 +206,33 @@ ax = plt.gca()
 plt.show()
 
 
-# In[5]:
+# In[6]:
 
 
 # Define Starting node, Goal node, and Depth limit for dlm
 start, goal, l = 'Arad', 'Bucharest', 5
+
+
+# In[7]:
+
 
 # Run and print bfs
 print('Breadth First Search'); print('-------------------------'); 
 bfs_path = graph.breadth_first_search(start, goal)
 if (bfs_path): print('Path:', end=' '); Graph.print_path(bfs_path, goal); print();print()
 
+
+# In[8]:
+
+
 # Run and print dlm
 print('Depth Limited Search'); print('-------------------------'); 
 dlm_path = graph.depth_limited_search(start, goal, l)
 if (dlm_path): print('Path:', end=' '); Graph.print_path(dlm_path, goal); print();print()
+
+
+# In[9]:
+
 
 # Run and print dlm
 print('Uniform Cost Search'); print('-------------------------'); 
